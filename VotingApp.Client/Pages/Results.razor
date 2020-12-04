@@ -1,0 +1,70 @@
+﻿@page "/{UrlCode}/results"
+@inject HttpClient Http
+
+@if (_poll == null)
+{
+    <p>No poll found.</p>
+}
+else
+{
+     <h2 class="question">@_poll.Question</h2>
+    <div class="section results-section">
+        @foreach (var item in _poll.Options)
+        {
+            var percent = (Decimal.Divide(item.Votes, _voteTotal) * 100).ToString("0.##");
+            <div class="option-row">
+                <span class="option-tag">@item.Body</span>
+                <div class="results">
+                    <span class="votes">@item.Votes @(item.Votes == 0 || item.Votes > 1 ? "Votes" : "Vote")</span>
+                    <span class="vote-percent">@percent %</span>
+                </div>
+                @if (item.Votes != 0)
+                {
+                    <div class="bar" style="width:@percent%"></div>
+                }
+        </div>
+        }
+    </div>
+}
+
+@code {
+    [Parameter] public string UrlCode { get; set; }
+
+    private Poll _poll = new Poll();
+    private int _voteTotal = 0;
+
+    private async Task GetPoll()
+    {
+        _poll = await Http.GetFromJsonAsync<Poll>("https://localhost:5003/api/Polls/" + UrlCode);
+    }
+
+    private int GetVoteTotal()
+    {
+        var tempTotal = 0;
+        foreach (var option in _poll.Options)
+        {
+            tempTotal += option.Votes;
+        }
+        return tempTotal;
+    }
+
+    private async Task UpdateGraph()
+    {
+        _voteTotal = GetVoteTotal();
+        _poll.Options = OrderOptionsByVotes(_poll.Options);
+        Console.WriteLine(_voteTotal);
+    }
+
+    private IList<Option> OrderOptionsByVotes(IList<Option> options)
+    {
+        IList<Option> sortedOptions = options.OrderByDescending(o => o.Votes).ToList();
+        return sortedOptions;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _poll.Options = new List<Option>();
+        await GetPoll();
+        await UpdateGraph();
+    }
+}

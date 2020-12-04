@@ -1,0 +1,121 @@
+﻿@page "/"
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+@inject IJSRuntime jsRuntime
+@using Microsoft.AspNetCore.Authorization
+@using System.Net
+@using System.Net.Http.Json
+@using Microsoft.AspNetCore.Components.WebAssembly
+
+
+<EditForm Model="@_poll" OnValidSubmit="@HandleValidSubmit">
+    <div class="section question-section">
+        <InputText class="question-input" type="text" @bind-Value="_poll.Question" placeholder="Enter a question..." />
+    </div>
+    @if (_poll.Options == null || !_poll.Options.Any())
+    {
+        <a class="btn add-option-btn" @onclick="@AddOption"></a>
+    }
+    else
+    {
+        <div class="section option-section">
+            @{
+                Option optionLast = _poll.Options.Last();
+                int i = 0;
+            }
+            @foreach (var item in _poll.Options)
+            {
+                i++;
+                string optionId = "option-" + i;
+                <div class="option-row">
+                    @if (item.Equals(optionLast))
+                    {
+                        <InputText @onfocus=@( async (args) => { AddOptionAndFocus(optionId); } )
+                                   @bind-Value="item.Body"
+                                   id=@optionId
+                                   type="text"
+                                   placeholder="Enter an option..." />
+                    }
+                    else
+                    {
+                        <InputText @bind-Value="item.Body"
+                                   id=@optionId
+                                   type="text"
+                                   placeholder="Enter an option..." />
+                    }
+                </div>
+            }
+        </div>
+    }
+    @*<div class="section config-section">
+
+    </div>*@
+    <div class="section submit-section">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <button class="btn submit-btn" type="submit">Generate!</button>
+    </div>
+</EditForm>
+
+@code {
+    private Poll _poll = new Poll();
+    private string _lastOptionSelected = null;
+    private bool _refocus = false;
+
+    private void AddOption()
+    {
+        var addItem = new Option { Body = "" };
+        _poll.Options.Add(addItem);
+    }
+
+    // Because of re-rendering, the currently selected input needs to be refocused when adding a new option input
+    private void AddOptionAndFocus(string id)
+    {
+        _lastOptionSelected = id;
+        _refocus = true;
+        AddOption();
+    }
+
+    private void RemoveOption()
+    {
+        throw new NullReferenceException();
+    }
+
+    private async Task Submit()
+    {
+        HttpContent content = new StringContent(JsonConvert.SerializeObject(_poll), Encoding.UTF8, "application/json");
+        HttpResponseMessage response = await Http.PostAsync("https://localhost:5003/api/Polls", content);
+
+        if (response.Content != null)
+        {
+            _poll = await response.Content.ReadFromJsonAsync<Poll>();
+            NavigationManager.NavigateTo("/" + _poll.UrlCode);
+        }
+    }
+
+    public async Task Focus(string elementId)
+    {
+        await jsRuntime.InvokeVoidAsync("SetFocusToId", elementId);
+    }
+
+    private async Task HandleValidSubmit(EditContext editContext)
+    {
+        await Submit();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_lastOptionSelected != null && _refocus)
+        {
+            await Focus(_lastOptionSelected);
+            _refocus = false;
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        _poll.Options = new List<Option>();
+        AddOption();
+        AddOption();
+    }
+}

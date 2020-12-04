@@ -1,0 +1,65 @@
+﻿@page "/{UrlCode}"
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+@inject IJSRuntime jsRuntime
+
+@if (poll.Options == null || !poll.Options.Any())
+{
+    <p>No poll found.</p>
+}
+else
+{
+    <h2 class="question">@poll.Question</h2>
+    <div class="section option-section">
+        @foreach (var item in poll.Options)
+        {
+            <div class="option-row">
+                <label class="checkbox-container">
+                    <input type="radio" class="checkbox" name="vote-option" @onchange="UpdateSelected" value="@item.OptionId">
+                    <span class="checkmark"></span>
+                    @item.Body
+                </label>
+            </div>
+        }
+    </div>
+    <div class="section submit-section">
+        <a class="btn submit-btn" @onclick="@SubmitVote">Vote</a>
+        <a class="btn copy-btn" @onclick="@CopyUrlToClipboard">Copy URL</a>
+    </div>
+}
+
+@code {
+    [Parameter] public string UrlCode { get; set; }
+
+    private int selectedOptionId;
+
+    Poll poll = new Poll();
+
+    private async Task GetPoll()
+    {
+        poll = await Http.GetFromJsonAsync<Poll>("https://localhost:5003/api/Polls/" + UrlCode);
+    }
+
+    private void UpdateSelected(ChangeEventArgs args)
+    {
+        selectedOptionId = Int32.Parse(args.Value.ToString());
+    }
+
+    private async Task SubmitVote()
+    {
+        Console.WriteLine("Attempting to vote.");
+        await Http.PutAsJsonAsync<int>("https://localhost:5003/api/Polls/" + poll.UrlCode + '/' + selectedOptionId, selectedOptionId);
+        NavigationManager.NavigateTo("/" + poll.UrlCode + "/results");
+    }
+
+    private async Task CopyUrlToClipboard()
+    {
+        await jsRuntime.InvokeVoidAsync("CopyUrl");
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        poll.Options = new List<Option>();
+        await GetPoll();
+    }
+}
