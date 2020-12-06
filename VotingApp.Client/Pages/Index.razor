@@ -2,10 +2,7 @@
 @inject HttpClient Http
 @inject NavigationManager NavigationManager
 @inject IJSRuntime jsRuntime
-@using Microsoft.AspNetCore.Authorization
-@using System.Net
-@using System.Net.Http.Json
-@using Microsoft.AspNetCore.Components.WebAssembly
+@using System.Text.Json;
 
 
 <EditForm Model="@_poll" OnValidSubmit="@HandleValidSubmit">
@@ -83,7 +80,7 @@
 
     private async Task Submit()
     {
-        HttpContent content = new StringContent(JsonConvert.SerializeObject(_poll), Encoding.UTF8, "application/json");
+        HttpContent content = new StringContent(JsonSerializer.Serialize(_poll), Encoding.UTF8, "application/json");
         HttpResponseMessage response = await Http.PostAsync("/api/Polls", content);
 
         if (response.Content != null)
