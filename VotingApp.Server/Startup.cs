@@ -55,6 +55,8 @@ namespace VotingApp
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "VotingApp v1"));
             }
 
+            app.UseBlazorFrameworkFiles();
+
             app.UseStaticFiles();
 
             app.UseHttpsRedirection();
@@ -63,14 +65,10 @@ namespace VotingApp
 
             app.UseAuthorization();
 
-            app.UseCors(policy =>
-            policy.WithOrigins("http://localhost:5000", "https://localhost:5001")
-            .AllowAnyMethod()
-            .WithHeaders(HeaderNames.ContentType));
-
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapFallbackToFile("index.html");
             });
         }
     }

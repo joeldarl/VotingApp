@@ -84,7 +84,7 @@
     private async Task Submit()
     {
         HttpContent content = new StringContent(JsonConvert.SerializeObject(_poll), Encoding.UTF8, "application/json");
-        HttpResponseMessage response = await Http.PostAsync("https://localhost:5003/api/Polls", content);
+        HttpResponseMessage response = await Http.PostAsync("/api/Polls", content);
 
         if (response.Content != null)
         {

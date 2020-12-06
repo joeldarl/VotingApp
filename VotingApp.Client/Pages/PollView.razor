@@ -37,7 +37,7 @@ else
 
     private async Task GetPoll()
     {
-        poll = await Http.GetFromJsonAsync<Poll>("https://localhost:5003/api/Polls/" + UrlCode);
+        poll = await Http.GetFromJsonAsync<Poll>("/api/Polls/" + UrlCode);
     }
 
     private void UpdateSelected(ChangeEventArgs args)
@@ -48,7 +48,7 @@ else
     private async Task SubmitVote()
     {
         Console.WriteLine("Attempting to vote.");
-        await Http.PutAsJsonAsync<int>("https://localhost:5003/api/Polls/" + poll.UrlCode + '/' + selectedOptionId, selectedOptionId);
+        await Http.PutAsJsonAsync<int>("/api/Polls/" + poll.UrlCode + '/' + selectedOptionId, selectedOptionId);
         NavigationManager.NavigateTo("/" + poll.UrlCode + "/results");
     }
 

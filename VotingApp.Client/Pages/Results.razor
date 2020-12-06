@@ -35,7 +35,7 @@ else
 
     private async Task GetPoll()
     {
-        _poll = await Http.GetFromJsonAsync<Poll>("https://localhost:5003/api/Polls/" + UrlCode);
+        _poll = await Http.GetFromJsonAsync<Poll>("/api/Polls/" + UrlCode);
     }
 
     private int GetVoteTotal()
