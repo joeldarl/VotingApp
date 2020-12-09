@@ -76,7 +76,8 @@ input, .btn {
   border-radius: 7px;
   font-size: 0.8rem;
   width: 100%;
-  background-color: #f7f7f7; }
+  background-color: #f7f7f7;
+  -webkit-appearance: none; }
   input::placeholder, .btn::placeholder {
     color: #777777; }
 

@@ -118,6 +118,7 @@ input, .btn {
     font-size: 0.8rem;
     width: 100%;
     background-color: $light-grey;
+    -webkit-appearance: none;
 
     &::placeholder {
         color: $input-p-color;
