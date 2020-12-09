@@ -14,9 +14,8 @@ else
         @foreach (var item in poll.Options)
         {
             <div class="option-row">
-                <label class="checkbox-container">
-                    <input type="radio" class="checkbox" name="vote-option" @onchange="UpdateSelected" value="@item.OptionId">
-                    <span class="checkmark"></span>
+                <input type="radio" class="checkbox" id="@item.OptionId" name="vote-option" @onchange="UpdateSelected" value="@item.OptionId">
+                <label class="checkbox-container" for="@item.OptionId">
                     @item.Body
                 </label>
             </div>
