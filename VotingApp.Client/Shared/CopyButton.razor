@@ -1,0 +1,10 @@
+﻿@inject IJSRuntime jsRuntime
+
+<a class="btn copy-btn" @onclick="@CopyUrlToClipboard">Copy URL</a>
+
+@code {
+    private async Task CopyUrlToClipboard()
+    {
+        await jsRuntime.InvokeVoidAsync("CopyUrl");
+    }
+}

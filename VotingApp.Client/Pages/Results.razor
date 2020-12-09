@@ -7,7 +7,7 @@
 }
 else
 {
-     <h2 class="question">@_poll.Question</h2>
+    <h2 class="question">@_poll.Question</h2>
     <div class="section results-section">
         @foreach (var item in _poll.Options)
         {
@@ -22,8 +22,11 @@ else
                 {
                     <div class="bar" style="width:@percent%"></div>
                 }
-        </div>
+            </div>
         }
+    </div>
+    <div class="section submit-section">
+        <CopyButton></CopyButton>
     </div>
 }
 
